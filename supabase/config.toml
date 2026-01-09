@@ -1,0 +1,13 @@
+project_id = "vyamossafjfrbipgtqlq"
+
+[functions.health-chat]
+verify_jwt = false
+
+[functions.analyze-symptoms]
+verify_jwt = false
+
+[functions.scan-prescription]
+verify_jwt = false
+
+[functions.check-drug-interactions]
+verify_jwt = false

@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Healthcare-inspired color palette */
+    --background: 180 20% 99%;
+    --foreground: 200 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 25% 15%;
+
+    /* Primary: Healing Teal */
+    --primary: 168 76% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Soft Sky */
+    --secondary: 200 40% 96%;
+    --secondary-foreground: 200 25% 25%;
+
+    --muted: 180 15% 95%;
+    --muted-foreground: 200 15% 45%;
+
+    /* Accent: Calm Blue */
+    --accent: 200 80% 92%;
+    --accent-foreground: 200 60% 30%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 180 20% 90%;
+    --input: 180 20% 90%;
+    --ring: 168 76% 32%;
+
+    --radius: 0.75rem;
+
+    /* Custom Healthcare Colors */
+    --health-teal: 168 76% 32%;
+    --health-teal-light: 168 60% 95%;
+    --health-green: 142 70% 45%;
+    --health-green-light: 142 60% 94%;
+    --health-amber: 38 92% 50%;
+    --health-amber-light: 38 80% 94%;
+    --health-red: 0 72% 51%;
+    --health-red-light: 0 60% 95%;
+    --health-blue: 200 80% 50%;
+    --health-blue-light: 200 70% 95%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(168 76% 32%) 0%, hsl(200 80% 50%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(180 20% 99%) 0%, hsl(180 15% 97%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(180 20% 98%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(200 25% 15% / 0.08);
+    --shadow-card: 0 8px 32px -8px hsl(200 25% 15% / 0.1);
+    --shadow-glow: 0 0 40px hsl(168 76% 32% / 0.15);
+
+    /* Sidebar */
+    --sidebar-background: 180 20% 98%;
+    --sidebar-foreground: 200 25% 25%;
+    --sidebar-primary: 168 76% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 180 15% 95%;
+    --sidebar-accent-foreground: 200 25% 25%;
+    --sidebar-border: 180 20% 90%;
+    --sidebar-ring: 168 76% 32%;
+  }
+
+  .dark {
+    --background: 200 25% 8%;
+    --foreground: 180 20% 98%;
+
+    --card: 200 25% 10%;
+    --card-foreground: 180 20% 98%;
+
+    --popover: 200 25% 10%;
+    --popover-foreground: 180 20% 98%;
+
+    --primary: 168 65% 45%;
+    --primary-foreground: 200 25% 8%;
+
+    --secondary: 200 25% 15%;
+    --secondary-foreground: 180 20% 95%;
+
+    --muted: 200 20% 15%;
+    --muted-foreground: 200 15% 60%;
+
+    --accent: 200 40% 20%;
+    --accent-foreground: 200 70% 85%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 200 20% 18%;
+    --input: 200 20% 18%;
+    --ring: 168 65% 45%;
+
+    --health-teal: 168 65% 45%;
+    --health-teal-light: 168 30% 15%;
+    --health-green: 142 60% 40%;
+    --health-green-light: 142 30% 15%;
+    --health-amber: 38 80% 45%;
+    --health-amber-light: 38 40% 15%;
+    --health-red: 0 65% 50%;
+    --health-red-light: 0 40% 15%;
+    --health-blue: 200 70% 50%;
+    --health-blue-light: 200 40% 15%;
+
+    --sidebar-background: 200 25% 8%;
+    --sidebar-foreground: 180 20% 95%;
+    --sidebar-primary: 168 65% 45%;
+    --sidebar-primary-foreground: 200 25% 8%;
+    --sidebar-accent: 200 20% 15%;
+    --sidebar-accent-foreground: 180 20% 95%;
+    --sidebar-border: 200 20% 18%;
+    --sidebar-ring: 168 65% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .health-card {
+    @apply bg-card rounded-2xl p-6 shadow-card border border-border/50 transition-all duration-300;
+  }
+
+  .health-card:hover {
+    @apply shadow-lg -translate-y-1;
+  }
+
+  .urgency-green {
+    @apply bg-health-green-light text-health-green border-health-green;
+  }
+
+  .urgency-amber {
+    @apply bg-health-amber-light text-health-amber border-health-amber;
+  }
+
+  .urgency-red {
+    @apply bg-health-red-light text-health-red border-health-red;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-health-blue;
+  }
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+}
