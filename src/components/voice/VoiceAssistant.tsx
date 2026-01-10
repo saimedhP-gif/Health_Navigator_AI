@@ -370,7 +370,8 @@ export function VoiceLanguageSelector({
     className?: string;
 }) {
     const [isOpen, setIsOpen] = useState(false);
-    const languages = Object.entries(supportedMedicalLanguages).slice(0, 8) as [SupportedLanguageCode, { name: string; nativeName: string }][];
+    // Show all supported languages for better Indian language coverage
+    const languages = Object.entries(supportedMedicalLanguages) as [SupportedLanguageCode, { name: string; nativeName: string }][];
 
     return (
         <div className={`relative ${className}`}>
@@ -393,7 +394,7 @@ export function VoiceLanguageSelector({
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -5 }}
                             className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-white/10 
-                                       rounded-lg shadow-xl z-50 overflow-hidden min-w-36"
+                                       rounded-lg shadow-xl z-50 overflow-hidden min-w-48 max-h-80 overflow-y-auto"
                         >
                             {languages.map(([code, info]) => (
                                 <button
@@ -493,10 +494,127 @@ export function TranslateAndSpeak({
     );
 }
 
+/**
+ * Translate Button Component
+ * Translates text without speaking - for displaying translated text inline
+ */
+export function TranslateButton({
+    text,
+    targetLanguage,
+    onTranslated,
+    className = ""
+}: {
+    text: string;
+    targetLanguage: SupportedLanguageCode;
+    onTranslated?: (translatedText: string) => void;
+    className?: string;
+}) {
+    const [isTranslating, setIsTranslating] = useState(false);
+    const [showTranslation, setShowTranslation] = useState(false);
+    const [translatedText, setTranslatedText] = useState<string | null>(null);
+
+    const handleTranslate = async () => {
+        if (showTranslation && translatedText) {
+            // Toggle off
+            setShowTranslation(false);
+            return;
+        }
+
+        if (translatedText) {
+            // Already translated, just show
+            setShowTranslation(true);
+            return;
+        }
+
+        if (targetLanguage === "en") {
+            setTranslatedText(text);
+            setShowTranslation(true);
+            return;
+        }
+
+        setIsTranslating(true);
+        try {
+            const response = await translateText({
+                text,
+                targetLanguage
+            });
+
+            if (response.success && response.translations.length > 0) {
+                const translated = response.translations[0].translatedText;
+                setTranslatedText(translated);
+                setShowTranslation(true);
+                onTranslated?.(translated);
+            }
+        } catch (error) {
+            console.error("Translation error:", error);
+        } finally {
+            setIsTranslating(false);
+        }
+    };
+
+    const translateLabel = {
+        en: "Translate",
+        hi: "अनुवाद करें",
+        te: "అనువదించు",
+        ta: "மொழிபெயர்",
+        kn: "ಅನುವಾದಿಸು",
+        ml: "വിവർത്തനം",
+        es: "Traducir",
+        fr: "Traduire",
+        de: "Übersetzen",
+        zh: "翻译",
+        ar: "ترجمة",
+        pt: "Traduzir",
+        bn: "অনুবাদ করুন",
+        mr: "अनुवाद करा",
+        gu: "અનુવાદ કરો",
+        pa: "ਅਨੁਵਾਦ ਕਰੋ",
+        ur: "ترجمہ کریں"
+    };
+
+    return (
+        <div className="relative">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleTranslate}
+                disabled={isTranslating}
+                title={`Translate to ${supportedMedicalLanguages[targetLanguage]?.name || targetLanguage}`}
+                className={`${className} text-xs flex items-center gap-1`}
+            >
+                {isTranslating ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                    <Globe className="w-3 h-3" />
+                )}
+                <span>{translateLabel[targetLanguage] || "Translate"}</span>
+            </Button>
+
+            <AnimatePresence>
+                {showTranslation && translatedText && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -5, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: "auto" }}
+                        exit={{ opacity: 0, y: -5, height: 0 }}
+                        className="mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm"
+                    >
+                        <div className="flex items-center gap-2 mb-1 text-blue-400 text-xs">
+                            <Globe className="w-3 h-3" />
+                            <span>{supportedMedicalLanguages[targetLanguage]?.name}</span>
+                        </div>
+                        <p className="whitespace-pre-wrap">{translatedText}</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 export default {
     VoiceInputButton,
     VoiceOutputButton,
     VoiceLanguageSelector,
     TranslateAndSpeak,
+    TranslateButton,
     useTextToSpeech
 };

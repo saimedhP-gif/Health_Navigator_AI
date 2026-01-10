@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,13 @@ import {
   ChevronUp,
   Phone,
   Sparkles,
-  ListChecks
+  ListChecks,
+  Mic,
+  Volume2,
+  VolumeX,
+  Search,
+  Baby,
+  X
 } from "lucide-react";
 import {
   getRecommendationsForSymptoms,
@@ -40,24 +46,69 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { VoiceInputButton, useTextToSpeech } from "@/components/voice/VoiceAssistant";
+import {
+  kidsSymptoms,
+  symptomCategories,
+  ageGroupInfo,
+  KidsSymptom,
+  SymptomCategory,
+  AgeGroup,
+  searchSymptoms as searchKidsSymptoms
+} from "@/data/kidsSymptoms";
+import {
+  symptomDetails,
+  SymptomDetail,
+  FollowUpQuestion,
+  getSymptomDetail,
+  getDetailedRecommendations
+} from "@/data/symptomDetails";
 
-const symptoms = [
-  "Headache",
-  "Fever",
-  "Cough",
-  "Sore Throat",
-  "Fatigue",
-  "Body Aches",
-  "Nausea",
-  "Dizziness",
-  "Chest Pain",
-  "Difficulty Breathing",
-  "Abdominal Pain",
-  "Diarrhea",
-  "Skin Rash",
-  "Joint Pain",
-  "Runny Nose",
-  "Loss of Appetite",
+// Extended symptoms list - 100+ symptoms
+const adultSymptoms = [
+  // General
+  "Headache", "Fever", "Fatigue", "Body Aches", "Weakness", "Chills", "Night Sweats",
+  "Weight Loss", "Weight Gain", "Loss of Appetite", "Excessive Thirst", "Dehydration",
+  // Respiratory
+  "Cough", "Dry Cough", "Wet Cough", "Sore Throat", "Runny Nose", "Stuffy Nose",
+  "Difficulty Breathing", "Shortness of Breath", "Wheezing", "Chest Congestion",
+  "Rapid Breathing", "Sneezing", "Nasal Discharge", "Sinus Pain", "Hoarse Voice",
+  // Digestive
+  "Nausea", "Vomiting", "Diarrhea", "Constipation", "Abdominal Pain", "Stomach Cramps",
+  "Bloating", "Gas", "Heartburn", "Acid Reflux", "Indigestion", "Loss of Appetite",
+  "Blood in Stool", "Dark Stool", "Difficulty Swallowing",
+  // Pain
+  "Chest Pain", "Back Pain", "Neck Pain", "Joint Pain", "Muscle Pain", "Leg Pain",
+  "Arm Pain", "Hip Pain", "Shoulder Pain", "Knee Pain", "Ankle Pain", "Wrist Pain",
+  // Neurological
+  "Dizziness", "Lightheadedness", "Vertigo", "Fainting", "Confusion", "Memory Problems",
+  "Numbness", "Tingling", "Seizures", "Tremors", "Balance Problems", "Blurred Vision",
+  // Skin
+  "Skin Rash", "Itching", "Hives", "Dry Skin", "Redness", "Swelling", "Bruising",
+  "Skin Discoloration", "Blisters", "Bumps", "Acne", "Eczema", "Psoriasis",
+  // Cardiovascular
+  "Heart Palpitations", "Rapid Heartbeat", "Slow Heartbeat", "Irregular Heartbeat",
+  "High Blood Pressure", "Low Blood Pressure", "Swollen Legs", "Cold Extremities",
+  // Mental Health
+  "Anxiety", "Depression", "Mood Swings", "Irritability", "Sleep Problems", "Insomnia",
+  "Excessive Sleep", "Stress", "Panic Attacks", "Loss of Interest",
+  // Urinary
+  "Frequent Urination", "Painful Urination", "Blood in Urine", "Dark Urine",
+  "Difficulty Urinating", "Incontinence", "Urgency",
+  // Eye/Ear
+  "Eye Pain", "Red Eyes", "Eye Discharge", "Blurred Vision", "Double Vision",
+  "Ear Pain", "Hearing Loss", "Ringing in Ears", "Ear Discharge",
+  // Other
+  "Swollen Lymph Nodes", "Dry Mouth", "Excessive Salivation", "Hair Loss",
+  "Brittle Nails", "Cold Intolerance", "Heat Intolerance", "Excessive Sweating"
+];
+
+// Kids age groups for symptoms
+const kidsAgeGroups = [
+  { value: "Newborn (0-28 days)", emoji: "👶", desc: "Brand new baby" },
+  { value: "Infant (1-12 months)", emoji: "🍼", desc: "Baby's first year" },
+  { value: "Toddler (1-3 years)", emoji: "🧒", desc: "Learning to walk & talk" },
+  { value: "Preschool (3-5 years)", emoji: "👧", desc: "Ready for school" }
 ];
 
 type UrgencyLevel = "green" | "amber" | "red";
@@ -73,6 +124,9 @@ interface SymptomResult {
 
 export default function SymptomChecker() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const { speak, stop, isSpeaking } = useTextToSpeech();
+
   const [step, setStep] = useState(1);
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
@@ -81,10 +135,9 @@ export default function SymptomChecker() {
   const [severity, setSeverity] = useState(3);
   const [result, setResult] = useState<SymptomResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   // Medicine recommendations state
-  const [activeRecommendationTab, setActiveRecommendationTab] = useState<"medicines" | "homeCare" | "natural" | "pathway">("pathway");
+  const [activeRecommendationTab, setActiveRecommendationTab] = useState<"medicines" | "homeCare" | "natural" | "pathway" | "doctors" | "homeRemedies" | "naturalRemedies">("pathway");
   const [expandedMedicines, setExpandedMedicines] = useState<Set<string>>(new Set());
   const [showDisclaimer, setShowDisclaimer] = useState(true);
 
@@ -92,14 +145,44 @@ export default function SymptomChecker() {
   const [carePathway, setCarePathway] = useState<CarePathway | null>(null);
   const [isGeneratingPathway, setIsGeneratingPathway] = useState(false);
 
+  // Voice assistance state
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+
+  // Kids mode and search state
+  const [isKidsMode, setIsKidsMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedKidsSymptoms, setSelectedKidsSymptoms] = useState<KidsSymptom[]>([]);
+
+  // Symptom detail modal state
+  const [showSymptomDetail, setShowSymptomDetail] = useState(false);
+  const [activeSymptomDetail, setActiveSymptomDetail] = useState<SymptomDetail | null>(null);
+  const [symptomFollowUpAnswers, setSymptomFollowUpAnswers] = useState<Record<string, string | string[]>>({});
+  const [showDetailedRecommendations, setShowDetailedRecommendations] = useState(false);
+
   const totalSteps = 5;
 
   const handleSymptomToggle = (symptom: string) => {
-    setSelectedSymptoms((prev) =>
-      prev.includes(symptom)
-        ? prev.filter((s) => s !== symptom)
-        : [...prev, symptom]
-    );
+    const isCurrentlySelected = selectedSymptoms.includes(symptom);
+
+    if (isCurrentlySelected) {
+      // Just remove the symptom
+      setSelectedSymptoms((prev) => prev.filter((s) => s !== symptom));
+    } else {
+      // Add the symptom
+      setSelectedSymptoms((prev) => [...prev, symptom]);
+
+      // Check if this symptom has detailed follow-up questions
+      const detail = getSymptomDetail(symptom);
+      if (detail) {
+        setActiveSymptomDetail(detail);
+        setSymptomFollowUpAnswers({});
+        setShowSymptomDetail(true);
+        if (isVoiceEnabled) {
+          speak({ text: `Selected ${symptom}. Let me ask you some follow-up questions.`, language: "en", rate: 1.0 });
+        }
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -171,6 +254,7 @@ export default function SymptomChecker() {
     setAge("");
     setGender("");
     setSelectedSymptoms([]);
+    setSelectedKidsSymptoms([]);
     setDuration("");
     setSeverity(3);
     setResult(null);
@@ -178,6 +262,13 @@ export default function SymptomChecker() {
     setActiveRecommendationTab("pathway");
     setExpandedMedicines(new Set());
     setShowDisclaimer(true);
+    setIsKidsMode(false);
+    setSearchQuery("");
+    setVoiceTranscript("");
+    setShowSymptomDetail(false);
+    setActiveSymptomDetail(null);
+    setSymptomFollowUpAnswers({});
+    setShowDetailedRecommendations(false);
   };
 
   const toggleMedicineExpand = (id: string) => {
@@ -202,7 +293,7 @@ export default function SymptomChecker() {
       case 2:
         return gender !== "";
       case 3:
-        return selectedSymptoms.length > 0;
+        return selectedSymptoms.length > 0 || selectedKidsSymptoms.length > 0;
       case 4:
         return duration !== "";
       case 5:
@@ -268,21 +359,84 @@ export default function SymptomChecker() {
                 exit={{ opacity: 0, x: -20 }}
                 className="health-card"
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-primary" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold">What is the patient's age?</h2>
+                      <p className="text-sm text-muted-foreground">This helps us provide age-appropriate guidance.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xl font-semibold">What is your age?</h2>
-                    <p className="text-sm text-muted-foreground">This helps us provide age-appropriate guidance.</p>
+                  {/* Voice Toggle */}
+                  <Button
+                    variant={isVoiceEnabled ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setIsVoiceEnabled(!isVoiceEnabled);
+                      if (isSpeaking) stop();
+                    }}
+                    className="gap-2"
+                  >
+                    {isVoiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                    Voice
+                  </Button>
+                </div>
+
+                {/* Kids Under 5 Section */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Baby className="w-5 h-5 text-pink-500" />
+                    <h3 className="font-semibold text-pink-500">Children Under 5</h3>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-pink-500/20 text-pink-500">100+ symptoms</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {kidsAgeGroups.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setAge(option.value);
+                          setIsKidsMode(true);
+                          if (isVoiceEnabled) {
+                            speak({ text: `Selected ${option.value}`, language: "en", rate: 1.2 });
+                          }
+                        }}
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${age === option.value
+                          ? "border-pink-500 bg-pink-500/10"
+                          : "border-border hover:border-pink-500/50"
+                          }`}
+                      >
+                        <span className="text-2xl block mb-1">{option.emoji}</span>
+                        <span className="font-medium text-sm block">{option.value}</span>
+                        <span className="text-xs text-muted-foreground">{option.desc}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 
+                {/* Divider */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-card px-4 text-sm text-muted-foreground">or select adult age</span>
+                  </div>
+                </div>
+
+                {/* Adult Age Groups */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {["Under 18", "18-30", "31-45", "46-60", "61-75", "Over 75"].map((option) => (
+                  {["5-12 years", "13-17 years", "18-30", "31-45", "46-60", "61-75", "Over 75"].map((option) => (
                     <button
                       key={option}
-                      onClick={() => setAge(option)}
+                      onClick={() => {
+                        setAge(option);
+                        setIsKidsMode(option === "5-12 years");
+                        if (isVoiceEnabled) {
+                          speak({ text: `Selected ${option}`, language: "en", rate: 1.2 });
+                        }
+                      }}
                       className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${age === option
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border hover:border-primary/50"
@@ -339,42 +493,206 @@ export default function SymptomChecker() {
                 className="health-card"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-primary" />
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isKidsMode ? "bg-pink-500/10" : "bg-primary/10"}`}>
+                    {isKidsMode ? <Baby className="w-6 h-6 text-pink-500" /> : <Activity className="w-6 h-6 text-primary" />}
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold">Select your symptoms</h2>
-                    <p className="text-sm text-muted-foreground">Choose all that apply.</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-2">
-                  {symptoms.map((symptom) => (
-                    <button
-                      key={symptom}
-                      onClick={() => handleSymptomToggle(symptom)}
-                      className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${selectedSymptoms.includes(symptom)
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50"
-                        }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        {selectedSymptoms.includes(symptom) && (
-                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                        )}
-                        {symptom}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                {selectedSymptoms.length > 0 && (
-                  <div className="mt-4 p-3 bg-muted rounded-xl">
+                    <h2 className="text-xl font-semibold">
+                      {isKidsMode ? "What symptoms is your child experiencing?" : "Select your symptoms"}
+                    </h2>
                     <p className="text-sm text-muted-foreground">
-                      Selected: {selectedSymptoms.join(", ")}
+                      {isKidsMode
+                        ? `${kidsSymptoms.length}+ child-specific symptoms available. Use voice search!`
+                        : `${adultSymptoms.length}+ symptoms available. Choose all that apply.`}
                     </p>
                   </div>
+                </div>
+
+                {/* Voice Search & Text Search */}
+                <div className="flex gap-3 mb-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder={isKidsMode ? "Search symptoms (e.g., fever, cough, rash)" : "Search symptoms..."}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-border bg-background focus:border-primary focus:outline-none transition-colors"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Voice Input Button */}
+                  <VoiceInputButton
+                    onTranscript={(text) => {
+                      setVoiceTranscript(text);
+                      setSearchQuery(text);
+                      if (isVoiceEnabled) {
+                        speak({ text: `Searching for ${text}`, language: "en", rate: 1.2 });
+                      }
+                    }}
+                    language="en"
+                    className="!w-12 !h-12"
+                  />
+                </div>
+
+                {/* Voice Transcript Feedback */}
+                {voiceTranscript && (
+                  <div className="mb-4 p-3 rounded-xl bg-primary/10 border border-primary/30">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mic className="w-4 h-4 text-primary" />
+                      <span className="text-muted-foreground">Voice search:</span>
+                      <span className="font-medium">{voiceTranscript}</span>
+                    </div>
+                  </div>
                 )}
+
+                {/* Selected Symptoms Count */}
+                {(selectedSymptoms.length > 0 || selectedKidsSymptoms.length > 0) && (
+                  <div className={`mb-4 p-3 rounded-xl border ${isKidsMode ? "bg-pink-500/10 border-pink-500/30" : "bg-primary/10 border-primary/30"}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className={`w-5 h-5 ${isKidsMode ? "text-pink-500" : "text-primary"}`} />
+                        <span className="font-medium">
+                          {isKidsMode ? selectedKidsSymptoms.length : selectedSymptoms.length} symptom(s) selected
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedSymptoms([]);
+                          setSelectedKidsSymptoms([]);
+                        }}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        Clear all
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {isKidsMode
+                        ? selectedKidsSymptoms.map(s => (
+                          <span
+                            key={s.id}
+                            className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${s.urgency === "emergency" ? "bg-red-500/20 text-red-400" :
+                              s.urgency === "high" ? "bg-amber-500/20 text-amber-400" :
+                                "bg-pink-500/20 text-pink-500"
+                              }`}
+                          >
+                            {s.emoji} {s.name}
+                            <button
+                              onClick={() => setSelectedKidsSymptoms(prev => prev.filter(x => x.id !== s.id))}
+                              className="hover:text-white"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))
+                        : selectedSymptoms.map(s => (
+                          <span key={s} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                            {s}
+                            <button
+                              onClick={() => setSelectedSymptoms(prev => prev.filter(x => x !== s))}
+                              className="hover:text-white"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))
+                      }
+                    </div>
+                  </div>
+                )}
+
+                {/* Symptoms Grid */}
+                <div className="max-h-[400px] overflow-y-auto pr-2">
+                  {isKidsMode ? (
+                    // Kids symptoms by category
+                    <div className="space-y-4">
+                      {Object.entries(symptomCategories).map(([category, catInfo]) => {
+                        const categorySymptoms = kidsSymptoms.filter(s =>
+                          s.category === category &&
+                          (searchQuery === "" || s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                        );
+                        if (categorySymptoms.length === 0) return null;
+
+                        return (
+                          <div key={category}>
+                            <h3 className="font-semibold text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                              <span>{catInfo.emoji}</span>
+                              {catInfo.label}
+                              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{categorySymptoms.length}</span>
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2">
+                              {categorySymptoms.slice(0, 10).map(symptom => {
+                                const isSelected = selectedKidsSymptoms.some(s => s.id === symptom.id);
+                                return (
+                                  <button
+                                    key={symptom.id}
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        setSelectedKidsSymptoms(prev => prev.filter(s => s.id !== symptom.id));
+                                      } else {
+                                        setSelectedKidsSymptoms(prev => [...prev, symptom]);
+                                        setSelectedSymptoms(prev => [...prev, symptom.name]);
+                                        if (isVoiceEnabled) {
+                                          speak({ text: `Added ${symptom.name}`, language: "en", rate: 1.2 });
+                                        }
+                                      }
+                                    }}
+                                    className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-left flex items-center gap-2 ${isSelected
+                                      ? symptom.urgency === "emergency"
+                                        ? "border-red-500 bg-red-500/10"
+                                        : symptom.urgency === "high"
+                                          ? "border-amber-500 bg-amber-500/10"
+                                          : "border-pink-500 bg-pink-500/10"
+                                      : "border-border hover:border-pink-500/50"
+                                      }`}
+                                  >
+                                    <span className="text-lg">{symptom.emoji}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="block truncate">{symptom.name}</span>
+                                    </div>
+                                    {isSelected && <CheckCircle2 className="w-4 h-4 text-pink-500 flex-shrink-0" />}
+                                    {symptom.urgency === "emergency" && <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    // Adult symptoms
+                    <div className="grid grid-cols-2 gap-2">
+                      {adultSymptoms
+                        .filter(s => searchQuery === "" || s.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .map((symptom) => (
+                          <button
+                            key={symptom}
+                            onClick={() => handleSymptomToggle(symptom)}
+                            className={`p-3 rounded-xl border-2 text-sm font-medium transition-all text-left ${selectedSymptoms.includes(symptom)
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border hover:border-primary/50"
+                              }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              {selectedSymptoms.includes(symptom) && (
+                                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                              )}
+                              {symptom}
+                            </span>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
 
@@ -609,9 +927,9 @@ export default function SymptomChecker() {
 
                             {/* Urgency Assessment */}
                             <div className={`p-4 rounded-xl border ${carePathway.urgencyLevel === 'emergency' ? 'bg-red-500/10 border-red-500' :
-                                carePathway.urgencyLevel === 'high' ? 'bg-amber-500/10 border-amber-500' :
-                                  carePathway.urgencyLevel === 'moderate' ? 'bg-yellow-500/10 border-yellow-500' :
-                                    'bg-green-500/10 border-green-500'
+                              carePathway.urgencyLevel === 'high' ? 'bg-amber-500/10 border-amber-500' :
+                                carePathway.urgencyLevel === 'moderate' ? 'bg-yellow-500/10 border-yellow-500' :
+                                  'bg-green-500/10 border-green-500'
                               }`}>
                               <h4 className="font-semibold flex items-center gap-2 mb-2">
                                 <Activity className="w-5 h-5" />
@@ -716,8 +1034,8 @@ export default function SymptomChecker() {
                                           {rec.medicine.icon} {rec.medicine.name}
                                         </span>
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${rec.priority === 'primary'
-                                            ? 'bg-green-500/10 text-green-500'
-                                            : 'bg-blue-500/10 text-blue-500'
+                                          ? 'bg-green-500/10 text-green-500'
+                                          : 'bg-blue-500/10 text-blue-500'
                                           }`}>
                                           {rec.priority === 'primary' ? 'Recommended' : 'Alternative'}
                                         </span>
@@ -1174,6 +1492,338 @@ export default function SymptomChecker() {
           )}
         </div>
       </div>
+
+      {/* Symptom Detail Modal */}
+      <AnimatePresence>
+        {showSymptomDetail && activeSymptomDetail && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowSymptomDetail(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {!showDetailedRecommendations ? (
+                // Follow-up Questions View
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl">
+                      {activeSymptomDetail.emoji}
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold">{activeSymptomDetail.name}</h2>
+                      <p className="text-sm text-muted-foreground">{activeSymptomDetail.description}</p>
+                    </div>
+                    <button
+                      onClick={() => setShowSymptomDetail(false)}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Follow-up Questions */}
+                  <div className="space-y-6">
+                    {activeSymptomDetail.followUpQuestions.map((question, qIndex) => (
+                      <div key={question.id} className="space-y-3">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-sm flex items-center justify-center">
+                            {qIndex + 1}
+                          </span>
+                          {question.question}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {question.options.map((option) => {
+                            const isSelected = question.multiple
+                              ? (symptomFollowUpAnswers[question.id] as string[] || []).includes(option.value)
+                              : symptomFollowUpAnswers[question.id] === option.value;
+
+                            return (
+                              <button
+                                key={option.value}
+                                onClick={() => {
+                                  setSymptomFollowUpAnswers(prev => {
+                                    if (question.multiple) {
+                                      const current = (prev[question.id] as string[]) || [];
+                                      if (current.includes(option.value)) {
+                                        return { ...prev, [question.id]: current.filter(v => v !== option.value) };
+                                      } else {
+                                        return { ...prev, [question.id]: [...current, option.value] };
+                                      }
+                                    } else {
+                                      return { ...prev, [question.id]: option.value };
+                                    }
+                                  });
+                                }}
+                                className={`p-3 rounded-xl border-2 text-sm text-left transition-all flex items-center gap-2 ${isSelected
+                                  ? option.severity === "emergency"
+                                    ? "border-red-500 bg-red-500/10 text-red-500"
+                                    : option.severity === "high"
+                                      ? "border-amber-500 bg-amber-500/10 text-amber-500"
+                                      : "border-primary bg-primary/10 text-primary"
+                                  : "border-border hover:border-primary/50"
+                                  }`}
+                              >
+                                <span className="text-lg">{option.emoji}</span>
+                                <span className="flex-1">{option.label}</span>
+                                {isSelected && <CheckCircle2 className="w-4 h-4" />}
+                                {option.severity === "emergency" && !isSelected && (
+                                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {question.multiple && (
+                          <p className="text-xs text-muted-foreground">Select all that apply</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 mt-8">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSymptomDetail(false)}
+                      className="flex-1"
+                    >
+                      Skip Questions
+                    </Button>
+                    <Button
+                      onClick={() => setShowDetailedRecommendations(true)}
+                      className="flex-1 gap-2"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Get Recommendations
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // Detailed Recommendations View
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
+                      {activeSymptomDetail.emoji}
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-xl font-bold">{activeSymptomDetail.name} - Recommendations</h2>
+                      <p className="text-sm text-muted-foreground">Based on your answers</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowDetailedRecommendations(false);
+                        setShowSymptomDetail(false);
+                      }}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Warnings - Show First */}
+                  {activeSymptomDetail.recommendations.warnings.length > 0 && (
+                    <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+                      <h3 className="font-semibold text-red-500 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        Important Warnings
+                      </h3>
+                      <ul className="space-y-1">
+                        {activeSymptomDetail.recommendations.warnings.map((warning, i) => (
+                          <li key={i} className="text-sm text-red-400">{warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Tabs for Different Recommendation Types */}
+                  <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                    {["doctors", "medicines", "homeRemedies", "naturalRemedies"].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveRecommendationTab(tab as any)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeRecommendationTab === tab
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted hover:bg-muted/80"
+                          }`}
+                      >
+                        {tab === "doctors" && "👨‍⚕️ Doctors"}
+                        {tab === "medicines" && "💊 Medicines"}
+                        {tab === "homeRemedies" && "🏠 Home Remedies"}
+                        {tab === "naturalRemedies" && "🌿 Natural Health"}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Recommendations Content */}
+                  <div className="max-h-[400px] overflow-y-auto">
+                    {/* Doctor Recommendations */}
+                    {activeRecommendationTab === "doctors" && (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold flex items-center gap-2 text-blue-500">
+                          <User className="w-5 h-5" />
+                          When to See a Doctor
+                        </h3>
+                        {activeSymptomDetail.recommendations.doctorRecommendations.map((doc, i) => (
+                          <div key={i} className={`p-4 rounded-xl border-2 ${doc.urgency === "emergency" ? "border-red-500 bg-red-500/5" :
+                            doc.urgency === "urgent" ? "border-amber-500 bg-amber-500/5" :
+                              doc.urgency === "soon" ? "border-blue-500 bg-blue-500/5" :
+                                "border-border"
+                            }`}>
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">👨‍⚕️</span>
+                              <div>
+                                <h4 className="font-semibold">{doc.specialty}</h4>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${doc.urgency === "emergency" ? "bg-red-500/20 text-red-500" :
+                                  doc.urgency === "urgent" ? "bg-amber-500/20 text-amber-500" :
+                                    doc.urgency === "soon" ? "bg-blue-500/20 text-blue-500" :
+                                      "bg-muted text-muted-foreground"
+                                  }`}>
+                                  {doc.urgency.charAt(0).toUpperCase() + doc.urgency.slice(1)}
+                                </span>
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{doc.reason}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Medicines */}
+                    {activeRecommendationTab === "medicines" && (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold flex items-center gap-2 text-purple-500">
+                          <Pill className="w-5 h-5" />
+                          Suggested Medicines
+                        </h3>
+                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 mb-4">
+                          <p className="text-sm text-amber-600">
+                            ⚠️ Always consult a doctor or pharmacist before taking any medicine. These are general suggestions only.
+                          </p>
+                        </div>
+                        {activeSymptomDetail.recommendations.medicines.map((med, i) => (
+                          <div key={i} className="p-4 rounded-xl border border-border hover:border-primary/50 transition-colors">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">💊</span>
+                              <div className="flex-1">
+                                <h4 className="font-semibold">{med.name}</h4>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-muted">
+                                  {med.ageGroup === "all" ? "All ages" :
+                                    med.ageGroup === "adult" ? "Adults only" :
+                                      med.ageGroup === "child" ? "For children" : "For infants"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Dosage:</span>
+                                <p>{med.dosage}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Frequency:</span>
+                                <p>{med.frequency}</p>
+                              </div>
+                            </div>
+                            {med.notes && (
+                              <p className="text-xs text-muted-foreground mt-2 p-2 bg-muted rounded-lg">
+                                📝 {med.notes}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Home Remedies */}
+                    {activeRecommendationTab === "homeRemedies" && (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold flex items-center gap-2 text-green-500">
+                          <Home className="w-5 h-5" />
+                          Home Remedies
+                        </h3>
+                        {activeSymptomDetail.recommendations.homeRemedies.map((remedy, i) => (
+                          <div key={i} className="p-4 rounded-xl border border-border hover:border-green-500/50 transition-colors">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">{remedy.emoji}</span>
+                              <h4 className="font-semibold">{remedy.name}</h4>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{remedy.instructions}</p>
+                          </div>
+                        ))}
+
+                        {/* General Advice */}
+                        {activeSymptomDetail.recommendations.generalAdvice.length > 0 && (
+                          <div className="mt-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                            <h4 className="font-semibold text-blue-500 mb-2">💡 General Advice</h4>
+                            <ul className="space-y-1">
+                              {activeSymptomDetail.recommendations.generalAdvice.map((advice, i) => (
+                                <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                                  <span className="text-blue-500">•</span>
+                                  {advice}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Natural Remedies */}
+                    {activeRecommendationTab === "naturalRemedies" && (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold flex items-center gap-2 text-emerald-500">
+                          <Leaf className="w-5 h-5" />
+                          Natural & Ayurvedic Remedies
+                        </h3>
+                        {activeSymptomDetail.recommendations.naturalRemedies.map((remedy, i) => (
+                          <div key={i} className="p-4 rounded-xl border border-border hover:border-emerald-500/50 transition-colors">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">{remedy.emoji}</span>
+                              <h4 className="font-semibold">{remedy.name}</h4>
+                            </div>
+                            <div className="space-y-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground font-medium">Benefits:</span>
+                                <p>{remedy.benefits}</p>
+                              </div>
+                              <div className="p-2 bg-muted rounded-lg">
+                                <span className="text-muted-foreground font-medium">How to use:</span>
+                                <p>{remedy.howToUse}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-6">
+                    <Button
+                      onClick={() => {
+                        setShowDetailedRecommendations(false);
+                        setShowSymptomDetail(false);
+                      }}
+                      className="w-full"
+                    >
+                      Done - Continue with Symptom Check
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }
