@@ -2,11 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Activity, Shield, Heart, FileText, BookOpen, Leaf, User, LogOut, Compass } from "lucide-react";
+import { Menu, X, Activity, Shield, Heart, FileText, BookOpen, Leaf, User, LogOut, Compass, Newspaper, Hospital, Siren } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 import { AnimatedThemeToggle } from "@/components/theme/ThemeToggle";
+import { AccessibilitySettingsPanel } from "@/components/accessibility/AccessibilitySettings";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,18 +19,21 @@ export function Header() {
     { href: "/symptoms", label: t("nav.checkSymptoms"), icon: Activity },
     { href: "/chat", label: t("nav.healthChat"), icon: Heart },
     { href: "/library", label: t("nav.healthLibrary"), icon: BookOpen },
+    { href: "/news", label: "News & Hospitals", icon: Newspaper },
     { href: "/natural-health", label: "Natural Health", icon: Leaf },
-    { href: "/chronic-navigator", label: "Chronic Navigator", icon: Compass },
     { href: "/scanner", label: t("nav.prescriptionScanner"), icon: FileText },
     { href: "/about", label: t("nav.aboutUs"), icon: Shield },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50">
+    <header
+      className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-border/50"
+      role="banner"
+    >
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to="/" className="flex items-center gap-2 group" aria-label="Health Navigator AI - Home">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
-            <Heart className="w-5 h-5 text-primary-foreground" />
+            <Heart className="w-5 h-5 text-primary-foreground" aria-hidden="true" />
           </div>
           <span className="font-bold text-lg hidden sm:block">
             Health Navigator<span className="text-primary">AI</span>
@@ -37,7 +41,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -46,6 +50,7 @@ export function Header() {
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
+              aria-current={location.pathname === link.href ? "page" : undefined}
             >
               {link.label}
             </Link>
@@ -53,6 +58,8 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
+          {/* Accessibility Settings */}
+          <AccessibilitySettingsPanel />
           {/* Theme Toggle */}
           <AnimatedThemeToggle />
           <LanguageSwitcher />
@@ -83,6 +90,8 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Accessibility */}
+          <AccessibilitySettingsPanel />
           {/* Mobile Theme Toggle */}
           <AnimatedThemeToggle />
           <LanguageSwitcher />
@@ -90,8 +99,9 @@ export function Header() {
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 rounded-lg hover:bg-muted transition-colors"
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
           </button>
         </div>
       </div>

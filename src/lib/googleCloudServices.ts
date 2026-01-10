@@ -141,25 +141,39 @@ export interface TranslationResponse {
     error?: string;
 }
 
-// Supported languages for medical translation
+// Supported languages for medical translation - Expanded Indian Regional Languages
 export const supportedMedicalLanguages = {
     "en": { name: "English", nativeName: "English", rtl: false },
     "hi": { name: "Hindi", nativeName: "हिन्दी", rtl: false },
+    // South Indian Languages
+    "ta": { name: "Tamil", nativeName: "தமிழ்", rtl: false },
+    "te": { name: "Telugu", nativeName: "తెలుగు", rtl: false },
+    "kn": { name: "Kannada", nativeName: "ಕನ್ನಡ", rtl: false },
+    "ml": { name: "Malayalam", nativeName: "മലയാളം", rtl: false },
+    // West Indian Languages
+    "mr": { name: "Marathi", nativeName: "मराठी", rtl: false },
+    "gu": { name: "Gujarati", nativeName: "ગુજરાતી", rtl: false },
+    "kok": { name: "Konkani", nativeName: "कोंकणी", rtl: false },
+    "sd": { name: "Sindhi", nativeName: "سنڌي", rtl: true },
+    // East Indian Languages
+    "bn": { name: "Bengali", nativeName: "বাংলা", rtl: false },
+    "or": { name: "Odia", nativeName: "ଓଡ଼ିଆ", rtl: false },
+    "as": { name: "Assamese", nativeName: "অসমীয়া", rtl: false },
+    "mai": { name: "Maithili", nativeName: "मैथिली", rtl: false },
+    // North Indian Languages
+    "pa": { name: "Punjabi", nativeName: "ਪੰਜਾਬੀ", rtl: false },
+    "ur": { name: "Urdu", nativeName: "اردو", rtl: true },
+    "ks": { name: "Kashmiri", nativeName: "कॉशुर", rtl: false },
+    "doi": { name: "Dogri", nativeName: "डोगरी", rtl: false },
+    "ne": { name: "Nepali", nativeName: "नेपाली", rtl: false },
+    "sa": { name: "Sanskrit", nativeName: "संस्कृतम्", rtl: false },
+    // International Languages
     "es": { name: "Spanish", nativeName: "Español", rtl: false },
     "fr": { name: "French", nativeName: "Français", rtl: false },
     "de": { name: "German", nativeName: "Deutsch", rtl: false },
     "zh": { name: "Chinese", nativeName: "中文", rtl: false },
     "ar": { name: "Arabic", nativeName: "العربية", rtl: true },
     "pt": { name: "Portuguese", nativeName: "Português", rtl: false },
-    "bn": { name: "Bengali", nativeName: "বাংলা", rtl: false },
-    "ta": { name: "Tamil", nativeName: "தமிழ்", rtl: false },
-    "te": { name: "Telugu", nativeName: "తెలుగు", rtl: false },
-    "mr": { name: "Marathi", nativeName: "मराठी", rtl: false },
-    "gu": { name: "Gujarati", nativeName: "ગુજરાતી", rtl: false },
-    "kn": { name: "Kannada", nativeName: "ಕನ್ನಡ", rtl: false },
-    "ml": { name: "Malayalam", nativeName: "മലയാളം", rtl: false },
-    "pa": { name: "Punjabi", nativeName: "ਪੰਜਾਬੀ", rtl: false },
-    "ur": { name: "Urdu", nativeName: "اردو", rtl: true },
 } as const;
 
 export type SupportedLanguageCode = keyof typeof supportedMedicalLanguages;

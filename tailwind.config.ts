@@ -74,6 +74,8 @@ export default {
           "red-light": "hsl(var(--health-red-light))",
           blue: "hsl(var(--health-blue))",
           "blue-light": "hsl(var(--health-blue-light))",
+          mint: "hsl(var(--health-mint))",
+          cream: "hsl(var(--health-cream))",
         },
       },
       borderRadius: {

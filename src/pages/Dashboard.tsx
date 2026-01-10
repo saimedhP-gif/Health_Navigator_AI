@@ -7,11 +7,12 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  User, 
-  Activity, 
-  MessageSquare, 
-  FileText, 
+import {
+  User,
+  Users,
+  Activity,
+  MessageSquare,
+  FileText,
   Bookmark,
   Calendar,
   TrendingUp,
@@ -204,6 +205,12 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button asChild variant="default" className="gap-2">
+                <Link to="/family">
+                  <Users className="w-4 h-4" />
+                  Family Profiles
+                </Link>
+              </Button>
               <Button variant="outline" onClick={handleSignOut} className="gap-2">
                 <LogOut className="w-4 h-4" />
                 Sign Out

@@ -24,6 +24,7 @@ import {
   VoiceOutputButton,
   VoiceLanguageSelector,
   TranslateAndSpeak,
+  TranslateButton,
   useTextToSpeech
 } from "@/components/voice/VoiceAssistant";
 import {
@@ -344,6 +345,8 @@ export default function HealthChat() {
       "बुखार के लिए डॉक्टर को कब दिखाना चाहिए?",
       "एंटीबायोटिक प्रतिरोध क्यों एक समस्या है?",
       "मेडिकल इमरजेंसी के लक्षण क्या हैं?",
+      "मधुमेह को कैसे नियंत्रित करें?",
+      "अच्छी नींद के लिए क्या करें?",
     ],
     es: [
       "¿Qué causa los dolores de cabeza?",
@@ -357,19 +360,88 @@ export default function HealthChat() {
       "Pourquoi la résistance aux antibiotiques est-elle un problème?",
       "Quels sont les signes d'urgence médicale?",
     ],
-    de: [],
-    zh: [],
-    ar: [],
-    pt: [],
-    bn: [],
-    ta: [],
-    te: [],
-    mr: [],
-    gu: [],
-    kn: [],
-    ml: [],
-    pa: [],
-    ur: []
+    de: [
+      "Was verursacht Kopfschmerzen?",
+      "Wann sollte ich bei Fieber einen Arzt aufsuchen?",
+      "Warum ist Antibiotikaresistenz ein Problem?",
+      "Was sind Anzeichen eines medizinischen Notfalls?",
+    ],
+    zh: [
+      "头痛的原因是什么？",
+      "发烧时什么时候应该看医生？",
+      "为什么抗生素耐药性是个问题？",
+      "医疗紧急情况的迹象有哪些？",
+    ],
+    ar: [
+      "ما الذي يسبب الصداع؟",
+      "متى يجب أن أرى الطبيب بسبب الحمى؟",
+      "لماذا تعتبر مقاومة المضادات الحيوية مشكلة؟",
+      "ما هي علامات الطوارئ الطبية؟",
+    ],
+    pt: [
+      "O que causa dores de cabeça?",
+      "Quando devo consultar um médico por febre?",
+      "Por que a resistência a antibióticos é um problema?",
+      "Quais são os sinais de emergência médica?",
+    ],
+    bn: [
+      "মাথাব্যথার কারণ কী?",
+      "জ্বরের জন্য কখন ডাক্তার দেখানো উচিত?",
+      "অ্যান্টিবায়োটিক প্রতিরোধ কেন সমস্যা?",
+      "জরুরি চিকিৎসার লক্ষণ কী?",
+    ],
+    ta: [
+      "தலைவலிக்கு காரணம் என்ன?",
+      "காய்ச்சலுக்கு எப்போது மருத்துவரிடம் செல்ல வேண்டும்?",
+      "நுண்ணுங்கொல்லி எதிர்ப்பு ஏன் ஒரு பிரச்சினை?",
+      "மருத்துவ அவசரத்தின் அறிகுறிகள் என்ன?",
+      "நீரிழிவு நோயை எவ்வாறு கட்டுப்படுத்துவது?",
+      "நல்ல தூக்கத்திற்கு என்ன செய்ய வேண்டும்?",
+    ],
+    te: [
+      "తలనొప్పికి కారణం ఏమిటి?",
+      "జ్వరం వచ్చినప్పుడు డాక్టర్ వద్దకు ఎప్పుడు వెళ్ళాలి?",
+      "యాంటీబయాటిక్ నిరోధకత ఎందుకు సమస్య?",
+      "వైద్య అత్యవసర సంకేతాలు ఏమిటి?",
+      "మధుమేహాన్ని ఎలా నియంత్రించాలి?",
+      "మంచి నిద్ర కోసం ఏమి చేయాలి?",
+    ],
+    mr: [
+      "डोकेदुखीचे कारण काय?",
+      "तापासाठी डॉक्टरांना कधी भेटायला हवे?",
+      "अंटिबायोटिक प्रतिरोध का समस्या आहे?",
+      "वैद्यकीय आपत्कालीन परिस्थितीची लक्षणे कोणती?",
+    ],
+    gu: [
+      "માથાનો દુખાવો શા કારણે થાય છે?",
+      "તાવ આવે ત્યારે ડોક્ટરને ક્યારે મળવું જોઈए?",
+      "એન્ટિબાયોટિક પ્રતિકાર શા માટે સમસ્યા છે?",
+      "તબીબી કટોકટીના સંકેતો શું છે?",
+    ],
+    kn: [
+      "ತಲೆನೋವಿಗೆ ಕಾರಣವೇನು?",
+      "ಜ್ವರ ಬಂದಾಗ ವೈದ್ಯರನ್ನು ಯಾವಾಗ ಭೇಟಿ ಮಾಡಬೇಕು?",
+      "ಪ್ರತಿಜೈವಿಕ ನಿರೋಧಕತೆ ಏಕೆ ಸಮಸ್ಯೆ?",
+      "ವೈದ್ಯಕೀಯ ತುರ್ತು ಪರಿಸ್ಥಿತಿಯ ಲಕ್ಷಣಗಳೇನು?",
+    ],
+    ml: [
+      "തലവേദനയ്ക്ക് കാരണം എന്താണ്?",
+      "പനി വരുമ്പോൾ ഡോക്ടറെ എപ്പോൾ കാണണം?",
+      "ആൻറ്റിബയോട്ടിക് പ്രതിരോധം എന്തുകൊണ്ട് പ്രശ്നമാണ്?",
+      "വൈദ്യ അടിയന്തരാവസ്ഥയുടെ ലക്ഷണങ്ങൾ എന്തോക്കെയാണ്?",
+    ],
+    pa: [
+      "ਸਿਰਦਰਦ ਦਾ ਕਾਰਨ ਕੀ ਹੈ?",
+      "ਬੁਖਾਰ ਹੋਣ ਤੇ ਡਾਕਟਰ ਨੂੰ ਕਦੋਂ ਮਿਲਣਾ ਚਾਹੀਦਾ ਹੈ?",
+      "ਐਂਟੀਬਾਇਓਟਿਕ ਪ੍ਰਤੀਰੋਧ ਕਿਉਂ ਸਮੱਸਿਆ ਹੈ?",
+      "ਮੈਡੀਕਲ ਐਮਰਜੈਂਸੀ ਦੇ ਲੱਛਣ ਕੀ ਹਨ?",
+    ],
+    ur: [
+      "سر درد کی وجہ کیا ہے؟",
+      "بخار ہونے پر ڈاکٹر سے کب ملنا چاہیے؟",
+      "اینٹیبائیوٹک مزاحمت کیوں ایک مسئلہ ہے؟",
+      "طبی ایمرجنسی کی علامات کیا ہیں؟",
+    ]
   };
 
   const currentQuestions = suggestedQuestions[selectedLanguage] || suggestedQuestions.en;
@@ -412,7 +484,11 @@ export default function HealthChat() {
             <p className="text-sm text-muted-foreground">
               {selectedLanguage === "hi" ? "स्वास्थ्य प्रश्न पूछें • मार्गदर्शन प्राप्त करें • जानकारी रखें" :
                 selectedLanguage === "es" ? "Haga preguntas de salud • Obtenga orientación • Manténgase informado" :
-                  "Ask health questions • Get guidance • Stay informed"}
+                  selectedLanguage === "te" ? "ఆరోగ్య ప్రశ్నలు అడగండి • మార్గదర్శకత్వం పొందండి • సమాచారంతో ఉండండి" :
+                    selectedLanguage === "ta" ? "சுகாதார கேள்விகள் கேளுங்கள் • வழிகாட்டல் பெறுங்கள் • தகவல் பெறுங்கள்" :
+                      selectedLanguage === "kn" ? "ಆರೋಗ್ಯ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ • ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ • ಮಾಹಿತಿಯುಳ್ಳವರಾಗಿರಿ" :
+                        selectedLanguage === "ml" ? "ആരോഗ്യ ചോദ്യങ്ങൾ ചോദിക്കൂ • മാർഗനിർദ്ദേശം നേടൂ • വിവരം അറിയൂ" :
+                          "Ask health questions • Get guidance • Stay informed"}
             </p>
           </div>
 
@@ -428,7 +504,15 @@ export default function HealthChat() {
                   ? "केवल सूचनात्मक उद्देश्यों के लिए। निदान या प्रिस्क्रिप्शन नहीं दे सकता। हमेशा स्वास्थ्य पेशेवर से परामर्श करें।"
                   : selectedLanguage === "es"
                     ? "Solo para fines informativos. No puede diagnosticar ni recetar. Siempre consulte a un profesional de la salud."
-                    : "For informational purposes only. Cannot diagnose or prescribe. Always consult a healthcare professional."}
+                    : selectedLanguage === "te"
+                      ? "సమాచార ఉద్దేశాల కోసం మాత్రమే. నిర్ధారణ లేదా మందులు సూచించలేము. ఎల్లప్పుడూ వైద్య నిపుణులను సంప్రదించండి."
+                      : selectedLanguage === "ta"
+                        ? "தகவல் நோக்கங்களுக்காக மட்டுமே. நீரிழிவு அல்லது மருந்து சிபாரிசு செய்ய இயலாது. எச்சரிக்கை சுகாதார நிபுணரை அணுகவும்."
+                        : selectedLanguage === "kn"
+                          ? "ಮಾಹಿತಿ ಉದ್ದೇಶಗಳಿಗಾಗಿ ಮಾತ್ರ. ರೋಗನಿರ್ಣಯ ಅಥವಾ ಔಷಧಾ ಶಿಫಾರಸು ಮಾಡಲಾಗುವುದಿಲ್ಲ. ಯಾವಾಗಲೂ ಆರೋಗ್ಯ ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ."
+                          : selectedLanguage === "ml"
+                            ? "വിവര ആവശ്യങ്ങൾക്ക് മാത്രം. രോഗനിർണ്ണയമോ മരുന്ന് നിർദ്ദേശിക്കാനോ കഴിയില്ല. എല്ലായ്പ്പോഴും ആരോഗ്യ വിദഗ്ധനെ സമീപിക്കുക."
+                            : "For informational purposes only. Cannot diagnose or prescribe. Always consult a healthcare professional."}
               </p>
             </div>
           </div>
@@ -451,8 +535,8 @@ export default function HealthChat() {
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-health-teal-light text-primary"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-health-teal-light text-primary"
                     }`}
                 >
                   {message.role === "user" ? (
@@ -463,8 +547,8 @@ export default function HealthChat() {
                 </div>
                 <div
                   className={`max-w-[80%] p-4 rounded-2xl relative group ${message.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-card border border-border rounded-bl-md"
+                    ? "bg-primary text-primary-foreground rounded-br-md"
+                    : "bg-card border border-border rounded-bl-md"
                     }`}
                 >
                   <div className="text-sm whitespace-pre-wrap">
@@ -477,12 +561,23 @@ export default function HealthChat() {
 
                   {/* Voice output button for assistant messages */}
                   {message.role === "assistant" && message.content && (
-                    <div className="absolute -bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <TranslateAndSpeak
-                        text={message.originalContent || message.content}
-                        targetLanguage={selectedLanguage}
-                        className="bg-slate-700 hover:bg-slate-600 rounded-full p-1.5"
-                      />
+                    <div className="mt-2 flex items-center gap-2">
+                      {/* Translate button - for on-demand translation */}
+                      {selectedLanguage !== "en" && !message.language?.includes(selectedLanguage) && (
+                        <TranslateButton
+                          text={message.originalContent || message.content}
+                          targetLanguage={selectedLanguage}
+                          className="text-blue-400 hover:text-blue-300"
+                        />
+                      )}
+                      {/* Voice output button */}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <TranslateAndSpeak
+                          text={message.originalContent || message.content}
+                          targetLanguage={selectedLanguage}
+                          className="bg-slate-700 hover:bg-slate-600 rounded-full p-1.5"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -523,7 +618,11 @@ export default function HealthChat() {
               <p className="text-xs text-muted-foreground mb-2">
                 {selectedLanguage === "hi" ? "ये पूछने का प्रयास करें:" :
                   selectedLanguage === "es" ? "Intente preguntar:" :
-                    "Try asking:"}
+                    selectedLanguage === "te" ? "ఈ ప్రశ్నలు అడిగి చూడండి:" :
+                      selectedLanguage === "ta" ? "இவற்றை கேள்வி பாருங்கள்:" :
+                        selectedLanguage === "kn" ? "ಈ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ:" :
+                          selectedLanguage === "ml" ? "ഈ ചോദ്യങ്ങൾ ചോദിക്കൂ:" :
+                            "Try asking:"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {currentQuestions.map((question) => (
@@ -549,7 +648,11 @@ export default function HealthChat() {
                 placeholder={
                   selectedLanguage === "hi" ? "स्वास्थ्य प्रश्न पूछें..." :
                     selectedLanguage === "es" ? "Haga una pregunta de salud..." :
-                      "Ask a health question..."
+                      selectedLanguage === "te" ? "ఆరోగ్య ప్రశ్న అడగండి..." :
+                        selectedLanguage === "ta" ? "சுகாதார கேள்வி கேளுங்கள்..." :
+                          selectedLanguage === "kn" ? "ಆರೋಗ್ಯ ಪ್ರಶ್ನೆ ಕೇಳಿ..." :
+                            selectedLanguage === "ml" ? "ആരോഗ്യ ചോദ്യം ചോദിക്കുക..." :
+                              "Ask a health question..."
                 }
                 rows={1}
                 disabled={isTyping}
@@ -585,7 +688,11 @@ export default function HealthChat() {
               <Mic className="w-3 h-3" />
               {selectedLanguage === "hi" ? "वॉइस इनपुट समर्थित" :
                 selectedLanguage === "es" ? "Entrada de voz compatible" :
-                  "Voice input supported"}
+                  selectedLanguage === "te" ? "వాయిస్ ఇన్‌పుట్ మద్దతు ఉంది" :
+                    selectedLanguage === "ta" ? "குரல் உள்ளீடு ஆதரிக்கப்படுகிறது" :
+                      selectedLanguage === "kn" ? "ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಬೆಂಬಲಿಕೆಯಿದೆ" :
+                        selectedLanguage === "ml" ? "വോയ്‌സ് ഇന്‍പുട്ട് പിന്തുണയുണ്ട്" :
+                          "Voice input supported"}
             </span>
             <span className="flex items-center gap-1">
               <Globe className="w-3 h-3" />

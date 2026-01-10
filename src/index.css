@@ -6,121 +6,139 @@
 
 @layer base {
   :root {
-    /* Healthcare-inspired color palette */
-    --background: 180 20% 99%;
-    --foreground: 200 25% 15%;
+    /* Coolors Palette: #05668D #028090 #00A896 #02C39A #F0F3BD */
+
+    /* Background - Soft cream tint */
+    --background: 66 52% 96%;
+    --foreground: 197 90% 29%;
 
     --card: 0 0% 100%;
-    --card-foreground: 200 25% 15%;
+    --card-foreground: 197 90% 29%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 200 25% 15%;
+    --popover-foreground: 197 90% 29%;
 
-    /* Primary: Healing Teal */
-    --primary: 168 76% 32%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Deep Teal #05668D */
+    --primary: 197 90% 29%;
+    --primary-foreground: 66 52% 96%;
 
-    /* Secondary: Soft Sky */
-    --secondary: 200 40% 96%;
-    --secondary-foreground: 200 25% 25%;
+    /* Secondary: Teal #028090 */
+    --secondary: 186 97% 29%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 180 15% 95%;
-    --muted-foreground: 200 15% 45%;
+    /* Muted with cream undertone */
+    --muted: 66 30% 92%;
+    --muted-foreground: 197 40% 40%;
 
-    /* Accent: Calm Blue */
-    --accent: 200 80% 92%;
-    --accent-foreground: 200 60% 30%;
+    /* Accent: Medium Teal #00A896 */
+    --accent: 171 100% 33%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 180 20% 90%;
-    --input: 180 20% 90%;
-    --ring: 168 76% 32%;
+    --border: 186 30% 85%;
+    --input: 186 30% 85%;
+    --ring: 197 90% 29%;
 
     --radius: 0.75rem;
 
-    /* Custom Healthcare Colors */
-    --health-teal: 168 76% 32%;
-    --health-teal-light: 168 60% 95%;
-    --health-green: 142 70% 45%;
-    --health-green-light: 142 60% 94%;
+    /* Custom Healthcare Colors based on Coolors palette */
+    --health-teal: 197 90% 29%;
+    /* #05668D - Deep teal */
+    --health-teal-light: 186 40% 94%;
+    --health-green: 163 98% 39%;
+    /* #02C39A - Bright green */
+    --health-green-light: 163 60% 94%;
     --health-amber: 38 92% 50%;
     --health-amber-light: 38 80% 94%;
     --health-red: 0 72% 51%;
     --health-red-light: 0 60% 95%;
-    --health-blue: 200 80% 50%;
-    --health-blue-light: 200 70% 95%;
+    --health-blue: 186 97% 29%;
+    /* #028090 - Teal */
+    --health-blue-light: 186 70% 95%;
+    --health-mint: 171 100% 33%;
+    /* #00A896 - Medium teal */
+    --health-cream: 66 52% 85%;
+    /* #F0F3BD - Cream */
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(168 76% 32%) 0%, hsl(200 80% 50%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(180 20% 99%) 0%, hsl(180 15% 97%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(180 20% 98%) 100%);
+    /* Gradients using new palette */
+    --gradient-hero: linear-gradient(135deg, hsl(197 90% 29%) 0%, hsl(171 100% 33%) 50%, hsl(163 98% 39%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(66 52% 96%) 0%, hsl(66 30% 94%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(66 52% 98%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(186 97% 29%) 0%, hsl(163 98% 39%) 100%);
 
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(200 25% 15% / 0.08);
-    --shadow-card: 0 8px 32px -8px hsl(200 25% 15% / 0.1);
-    --shadow-glow: 0 0 40px hsl(168 76% 32% / 0.15);
+    /* Shadows with teal tint */
+    --shadow-soft: 0 4px 20px -4px hsl(197 90% 29% / 0.1);
+    --shadow-card: 0 8px 32px -8px hsl(197 90% 29% / 0.12);
+    --shadow-glow: 0 0 40px hsl(163 98% 39% / 0.2);
 
     /* Sidebar */
-    --sidebar-background: 180 20% 98%;
-    --sidebar-foreground: 200 25% 25%;
-    --sidebar-primary: 168 76% 32%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 180 15% 95%;
-    --sidebar-accent-foreground: 200 25% 25%;
-    --sidebar-border: 180 20% 90%;
-    --sidebar-ring: 168 76% 32%;
+    --sidebar-background: 66 52% 97%;
+    --sidebar-foreground: 197 90% 29%;
+    --sidebar-primary: 197 90% 29%;
+    --sidebar-primary-foreground: 66 52% 96%;
+    --sidebar-accent: 171 100% 33%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 186 30% 88%;
+    --sidebar-ring: 197 90% 29%;
   }
 
   .dark {
-    --background: 200 25% 8%;
-    --foreground: 180 20% 98%;
+    /* Dark mode using Coolors palette */
+    --background: 197 50% 8%;
+    --foreground: 66 52% 92%;
 
-    --card: 200 25% 10%;
-    --card-foreground: 180 20% 98%;
+    --card: 197 40% 11%;
+    --card-foreground: 66 52% 92%;
 
-    --popover: 200 25% 10%;
-    --popover-foreground: 180 20% 98%;
+    --popover: 197 40% 11%;
+    --popover-foreground: 66 52% 92%;
 
-    --primary: 168 65% 45%;
-    --primary-foreground: 200 25% 8%;
+    /* Primary: Lighter Deep Teal for dark mode */
+    --primary: 171 80% 45%;
+    --primary-foreground: 197 50% 8%;
 
-    --secondary: 200 25% 15%;
-    --secondary-foreground: 180 20% 95%;
+    /* Secondary: Lighter Teal */
+    --secondary: 186 60% 35%;
+    --secondary-foreground: 66 52% 95%;
 
-    --muted: 200 20% 15%;
-    --muted-foreground: 200 15% 60%;
+    --muted: 197 30% 15%;
+    --muted-foreground: 186 30% 60%;
 
-    --accent: 200 40% 20%;
-    --accent-foreground: 200 70% 85%;
+    /* Accent: Bright Green */
+    --accent: 163 80% 45%;
+    --accent-foreground: 197 50% 8%;
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 20% 18%;
-    --input: 200 20% 18%;
-    --ring: 168 65% 45%;
+    --border: 197 30% 18%;
+    --input: 197 30% 18%;
+    --ring: 171 80% 45%;
 
-    --health-teal: 168 65% 45%;
-    --health-teal-light: 168 30% 15%;
-    --health-green: 142 60% 40%;
-    --health-green-light: 142 30% 15%;
+    /* Dark mode healthcare colors */
+    --health-teal: 171 80% 45%;
+    --health-teal-light: 171 30% 15%;
+    --health-green: 163 70% 45%;
+    --health-green-light: 163 30% 15%;
     --health-amber: 38 80% 45%;
     --health-amber-light: 38 40% 15%;
     --health-red: 0 65% 50%;
     --health-red-light: 0 40% 15%;
-    --health-blue: 200 70% 50%;
-    --health-blue-light: 200 40% 15%;
+    --health-blue: 186 60% 45%;
+    --health-blue-light: 186 40% 15%;
+    --health-mint: 171 80% 45%;
+    --health-cream: 66 30% 20%;
 
-    --sidebar-background: 200 25% 8%;
-    --sidebar-foreground: 180 20% 95%;
-    --sidebar-primary: 168 65% 45%;
-    --sidebar-primary-foreground: 200 25% 8%;
-    --sidebar-accent: 200 20% 15%;
-    --sidebar-accent-foreground: 180 20% 95%;
-    --sidebar-border: 200 20% 18%;
-    --sidebar-ring: 168 65% 45%;
+    --sidebar-background: 197 50% 8%;
+    --sidebar-foreground: 66 52% 92%;
+    --sidebar-primary: 171 80% 45%;
+    --sidebar-primary-foreground: 197 50% 8%;
+    --sidebar-accent: 163 80% 45%;
+    --sidebar-accent-foreground: 197 50% 8%;
+    --sidebar-border: 197 30% 18%;
+    --sidebar-ring: 171 80% 45%;
   }
 }
 
@@ -138,7 +156,12 @@
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold tracking-tight;
   }
 }
@@ -149,7 +172,8 @@
   }
 
   .health-card:hover {
-    @apply shadow-lg -translate-y-1;
+    @apply shadow-lg -translate-y-2;
+    box-shadow: 0 20px 40px -15px rgba(5, 102, 141, 0.12);
   }
 
   .urgency-green {
@@ -165,7 +189,25 @@
   }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-health-blue;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-health-mint to-health-green;
+  }
+
+  /* Professional container styling */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Premium section headers */
+  .section-header {
+    @apply text-center mb-12;
+  }
+
+  .section-header h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4;
+  }
+
+  .section-header p {
+    @apply text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto;
   }
 }
 
@@ -180,5 +222,244 @@
 
   .shadow-glow {
     box-shadow: var(--shadow-glow);
+  }
+
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Background utilities */
+  .bg-health-teal-light {
+    background-color: hsl(var(--health-teal-light));
+  }
+
+  .bg-health-green {
+    background-color: hsl(var(--health-green));
+  }
+
+  .bg-health-mint {
+    background-color: hsl(var(--health-mint));
+  }
+
+  /* Transition utilities */
+  .transition-premium {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY STYLES
+   ========================================== */
+
+/* Large Text Mode */
+html.text-lg-mode {
+  font-size: 18px;
+}
+
+html.text-lg-mode body {
+  line-height: 1.7;
+}
+
+html.text-lg-mode .text-sm {
+  font-size: 1rem;
+}
+
+html.text-lg-mode .text-xs {
+  font-size: 0.875rem;
+}
+
+html.text-lg-mode button,
+html.text-lg-mode input,
+html.text-lg-mode textarea {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Extra Large Text Mode */
+html.text-xl-mode {
+  font-size: 22px;
+}
+
+html.text-xl-mode body {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+html.text-xl-mode .text-sm {
+  font-size: 1.125rem;
+}
+
+html.text-xl-mode .text-xs {
+  font-size: 1rem;
+}
+
+html.text-xl-mode button,
+html.text-xl-mode input,
+html.text-xl-mode textarea {
+  font-size: 1.25rem;
+  padding: 1rem 1.25rem;
+}
+
+html.text-xl-mode h1 {
+  font-size: 3rem;
+}
+
+html.text-xl-mode h2 {
+  font-size: 2.5rem;
+}
+
+html.text-xl-mode h3 {
+  font-size: 2rem;
+}
+
+/* High Contrast Mode */
+html.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --primary: 60 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 90%;
+  --border: 0 0% 40%;
+}
+
+html.high-contrast.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+}
+
+html.high-contrast a,
+html.high-contrast button {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html.high-contrast img {
+  filter: contrast(1.2);
+}
+
+/* Reduced Motion */
+html.reduce-motion,
+html.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* Enhanced Focus Indicators */
+html.enhanced-focus *:focus {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 3px;
+}
+
+html.enhanced-focus *:focus-visible {
+  outline: 4px solid hsl(var(--primary));
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px hsla(var(--primary), 0.3);
+}
+
+html.enhanced-focus button:focus,
+html.enhanced-focus a:focus,
+html.enhanced-focus input:focus,
+html.enhanced-focus textarea:focus,
+html.enhanced-focus select:focus {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Screen Reader Optimized Mode */
+html.sr-optimized [aria-hidden="true"] {
+  display: none !important;
+}
+
+html.sr-optimized .decorative {
+  display: none;
+}
+
+html.sr-optimized button,
+html.sr-optimized a {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Skip Link for Keyboard Users */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Voice Mode Indicator */
+.voice-mode-active {
+  position: relative;
+}
+
+.voice-mode-active::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: hsl(var(--health-green));
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* Elderly-friendly button styles */
+html.text-lg-mode .large-touch-target,
+html.text-xl-mode .large-touch-target {
+  min-height: 56px;
+  min-width: 56px;
+  padding: 1rem 1.5rem;
+}
+
+/* Print Accessibility */
+@media print {
+  html.high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
   }
 }
