@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 healthdevelop/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
